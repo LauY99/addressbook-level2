@@ -8,11 +8,16 @@ import seedu.addressbook.data.exception.IllegalValueException;
  */
 public class Address {
 
+    public Block block;
+    public Street street;
+    public Unit unit;
+    public PCode postalCode;
+
     public static final String EXAMPLE = "123, some street";
     public static final String MESSAGE_ADDRESS_CONSTRAINTS = "Person addresses can be in any format";
     public static final String ADDRESS_VALIDATION_REGEX = ".+";
 
-    public final String value;
+    //public final String value;
     private boolean isPrivate;
 
     /**
@@ -26,7 +31,16 @@ public class Address {
         if (!isValidAddress(trimmedAddress)) {
             throw new IllegalValueException(MESSAGE_ADDRESS_CONSTRAINTS);
         }
-        this.value = trimmedAddress;
+
+        // split comma-separated address
+        String[] addresses = trimmedAddress.split(",");
+
+        this.block = new Block(addresses[0]);
+        this.street = new Street(addresses[1]);
+        this.unit = new Unit(addresses[2]);
+        this.postalCode = new PCode(addresses[3]);
+
+        //this.value = trimmedAddress;
     }
 
     /**
@@ -36,24 +50,33 @@ public class Address {
         return test.matches(ADDRESS_VALIDATION_REGEX);
     }
 
+    public String getCompleteAddress() {
+        return block.value + ", " + street.value + ", " + unit.value + ", " + postalCode.value;
+    }
+
     @Override
     public String toString() {
-        return value;
+        return getCompleteAddress();
     }
 
     @Override
     public boolean equals(Object other) {
+        String ownAddress = this.getCompleteAddress();
+        String otherAddress = ((Address) other).getCompleteAddress();
+
         return other == this // short circuit if same object
                 || (other instanceof Address // instanceof handles nulls
-                && this.value.equals(((Address) other).value)); // state check
+                && ownAddress.equals(otherAddress)); // state check
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        String completeAddress = getCompleteAddress();
+        return completeAddress.hashCode();
     }
 
     public boolean isPrivate() {
         return isPrivate;
     }
 }
+
